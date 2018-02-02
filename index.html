@@ -12,32 +12,31 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" type="text/css" href="style.css">
     </head>
-    <body class="nightmode">
-      <section class="top">
-        <div class="container">
-        <h1>SELFEED</h1> <span class="author" style="font-size: 12px"> by <a href="https://steemit.com/@elguille">elguille</a> / design: <a href="https://steemit.com/@fabiyamada">fabiyamada</a> </span>
-        </div>
-      </section>
-      <section class="main">
-        <p style="font-size: 12px;">This is a selfish feed for steemit users. It shows the latest posts authored by the top 20 supporters of a user based on the latest received comments and upvotes. Posts are highlighted proportionally to the amount of support received. Use wisely and remember to support others instead of just waiting for others to support you. </p>
-        <p>View style: <span class="view" id="view-normal">1</span> <span class="view" id="view-masonry">2</span> / <span id="togglenight" class="view">Toggle night mode</span></p>
-        <div id="feedoutput">
-            <p v-if="username == null || username== ''">To get the selfish feed for a user add the hash "#username" to this url. </p>
-
-            <p v-else><strong>Showing the selfish feed for @{{username}}</strong></p>
-
-            <p v-if="pendingRequests>0">... LOADING ...</p>
-            <div id="posts-container" v-else>
-                <div class="stm-post" v-for="post in sortedPosts">
-                    <h3 class="title" v-bind:style=" (max && min)? 'font-size: ' + (50 + 100 * supporters[post.author]/(max-min)) + '%' : '' "><a target="_blank" v-bind:href="'//steemit.com'+post.url">{{post.title}}</a> <small class="author"> by <a  target="_blank" v-bind:href="'//steemit.com/@'+post.author">{{post.author}}</a></small></h3>
+    <body>
+        <div id="feedoutput" v-bind:class="'wrapper ' + (nightmode?'nightmode':'')">
+            <section class="top">
+                <div class="container">
+                <h1>SELFEED</h1> <span class="author" style="font-size: 12px"> by <a href="https://steemit.com/@elguille">elguille</a> / design: <a href="https://steemit.com/@fabiyamada">fabiyamada</a> </span>
                 </div>
-            </div>
+            </section>
+            <section class="main">
+                <p style="font-size: 12px;">This is a selfish feed for steemit users. It shows the latest posts authored by the top 20 supporters of a user based on the latest received comments and upvotes. Posts are highlighted proportionally to the amount of support received. Use wisely and remember to support others instead of just waiting for others to support you. </p>
+                <p>View style: <span class="view" @click="masonry_mode = false">1</span> <span class="view" @click="masonry_mode = true">2</span> / <span class="view" @click="nightmode = !nightmode">Toggle night mode</span></p>
+                    <p v-if="username == null || username== ''">To get the selfish feed for a user add the hash "#username" to this url. </p>
+
+                    <p v-else><strong>Showing the selfish feed for @{{username}}</strong></p>
+
+                    <p v-if="pendingRequests>0">... LOADING ...</p>
+                    <div id="posts-container" v-bind:class="masonry_mode?'posts-masonry':''" v-else>
+                        <div class="stm-post" v-for="post in sortedPosts">
+                            <h3 class="title" v-bind:style=" (max && min)? 'font-size: ' + (50 + 100 * supporters[post.author]/(max-min)) + '%' : '' "><a target="_blank" v-bind:href="'//steemit.com'+post.url">{{post.title}}</a> <small class="author"> by <a  target="_blank" v-bind:href="'//steemit.com/@'+post.author">{{post.author}}</a></small></h3>
+                        </div>
+                    </div>
+            </section>
         </div>
-        </section>
         <script src="https://unpkg.com/vue/dist/vue.js"></script>
         <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
         <script src="https://cdn.steemjs.com/lib/latest/steem.min.js"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
         <script>
         var vueInstance = new Vue({
             el: '#feedoutput',
@@ -48,7 +47,9 @@
                 top20: [],
                 pendingRequests: 0,
                 action: null,
-                max: null, min: null
+                max: null, min: null,
+                masonry_mode: false,
+                nightmode: true
             },
             computed:  {
                 sortedPosts: function () {
@@ -149,17 +150,6 @@
         })
         vueInstance.$emit("routeChange", document.location.hash);
 
-        $('#view-masonry').click(function(){
-          $('#posts-container').addClass('posts-masonry')
-        });
-        $('#view-normal').click(function(){
-          $('#posts-container').removeClass('posts-masonry')
-        });
-        $('#togglenight').click(function(){
-          $('body').toggleClass('nightmode')
-        });
-
         </script>
     </body>
 </html>
-
